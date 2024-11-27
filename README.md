@@ -27,6 +27,6 @@ Go to chrome://web-app-internals ands install the IWA (either "Install IWA via D
 
 After installing the IWA, launch it and enter the server URL (if you need to reset it for some reason go to dev tools / application / Local storage / isolate-app://... and delete the kasm-url)
 
-After logging in there should be a connect button at the top left, click it it should allow you to select a usb device, select the smart card.
+After logging in there should be a connect button at the top left, click it it should allow you to select a usb device, select the smart card. If a usb list doesn't show up when clicking the button, right click on the IWA and click on reload.
 
-If it's working you will
+If it's working you will get `Uncaught (in promise) NetworkError: Failed to execute 'claimInterface' on 'USBDevice': Unable to claim interface.` unless you are using chrome and have set the UsbDetachableAllowlist and added 04e6:5116 
