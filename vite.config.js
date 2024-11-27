@@ -48,11 +48,12 @@ if (process.env.NODE_ENV === 'production') {
     server: {
       port: 5193,
       strictPort: true,
-      hmr: {
+      hmr: false,
+      /*hmr: {
         protocol: 'ws',
         host: 'localhost',
         clientPort: 5193,
-      },
+      },*/
     },
     build: {
       rollupOptions: {
