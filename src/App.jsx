@@ -14,6 +14,14 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    window.addEventListener('message', handleMessages)
+    return () => {
+      window.removeEventListener('message', handleMessages)
+    }
+  }, [device]);
+
+
   const removeTrailingSlash = (url) => {
     const newUrl = new URL(url)
     newUrl.pathname.endsWith('/') && (newUrl.pathname = newUrl.pathname.slice(0, -1));
@@ -31,9 +39,12 @@ function App() {
       switch (event.data) {
         case 'connect':
           connect()
+          break;
         case 'write':
-          write()
-        break;
+          setTimeout(() => { // setTimeout is needed to process on the next tick as there is no time between connecting and writing
+            write()
+          })
+          break;
       }
     }
   }
@@ -43,6 +54,7 @@ function App() {
     try {
       const requestdevice = await navigator.usb.requestDevice({ filters: [] });
       setDevice(requestdevice)
+      console.log('requestdevice')
       console.log(requestdevice)
       kasmframe.contentWindow.postMessage({ status: 'connected' }, '*');
     } catch (e) {
@@ -61,7 +73,8 @@ function App() {
       'PRINT 1',
       'END',
     ];
-    
+    console.log('device')
+    console.log(device)
     await device.open();
     await device.selectConfiguration(1);
     await device.claimInterface(0);
