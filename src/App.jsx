@@ -4,6 +4,7 @@ import './App.css'
 function App() {
   const [kasm, setKasm] = useState(window.localStorage.getItem('kasm-url') || null)
   const [url, setUrl] = useState('')
+  const [device, setDevice] = useState(null)
 
 
   useEffect(() => {
@@ -30,6 +31,8 @@ function App() {
       switch (event.data) {
         case 'connect':
           connect()
+        case 'write':
+          write()
         break;
       }
     }
@@ -38,16 +41,38 @@ function App() {
   const connect = async () => {
     console.log('wrapper connect')
     try {
-      const device = await navigator.usb.requestDevice({ filters: [] });
-      await device.open();
-      await device.selectConfiguration(1);
-      await device.claimInterface(0);
-
-      console.log(device)
+      const requestdevice = await navigator.usb.requestDevice({ filters: [] });
+      setDevice(requestdevice)
+      console.log(requestdevice)
       kasmframe.contentWindow.postMessage({ status: 'connected' }, '*');
     } catch (e) {
       kasmframe.contentWindow.postMessage({ status: 'error', error: e }, '*');
     }
+  }
+
+  async function write() {
+    console.log('write')
+    const cmds = [
+      'SIZE 48 mm,25 mm',
+      'CLS',
+      'TEXT 30,10,"4",0,1,1,"Test"',
+      'TEXT 30,50,"2",0,1,1,"WebUSB API"',
+      'BARCODE 30,80,"128",70,1,0,2,2,"altospos.com"',
+      'PRINT 1',
+      'END',
+    ];
+    
+    await device.open();
+    await device.selectConfiguration(1);
+    await device.claimInterface(0);
+    let test = await device.transferOut(
+      device.configuration.interfaces[0].alternate.endpoints.find(obj => obj.direction === 'out').endpointNumber,
+      new Uint8Array(
+        new TextEncoder().encode(cmds.join('\r\n'))
+      ),
+    );
+    console.log(test)
+    await device.close();
   }
    
 
